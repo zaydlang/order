@@ -4,21 +4,14 @@ import re;
 import re.gfx;
 import re.math;
 
+import constants;
+
 static import raylib;
 
 class LevelScene : Scene2D {
-    private static const int   TITLE_PADDING_X       = 5;
-    private static const int   TITLE_PADDING_Y       = 5;
-    private static const int   TITLE_FONT_SIZE       = 40;
-    private static const Color TITLE_COLOR           = Colors.BLACK;
 
-    private static const int   DESCRIPTION_PADDING_X = 5;
-    private static const int   DESCRIPTION_PADDING_Y = DESCRIPTION_FONT_SIZE;
-    private static const int   DESCRIPTION_FONT_SIZE = 30;
-    private static const Color DESCRIPTION_COLOR     = Colors.BLACK;
-
-    private string title;
-    private string description;
+    private static string title;
+    private static string description;
     
     // called when food comes in through an entrance or an exit to decide which food should come out
     // and whether or not the food went to the right exit, respectively.
@@ -33,10 +26,12 @@ class LevelScene : Scene2D {
     }
     
     override void on_start() {
-        auto title_text_entity = create_entity("title", Vector2(TITLE_PADDING_X, TITLE_PADDING_Y));
-        auto title_text = title_text_entity.add_component(new Text(Text.default_font, title, TITLE_FONT_SIZE, TITLE_COLOR));       
+        auto title_text_entity = create_entity("title", Vector2(LEVEL.TITLE_PADDING_X, LEVEL.TITLE_PADDING_Y));
+        auto title_text = title_text_entity.add_component(new Text(Text.default_font, title, LEVEL.TITLE_FONT_SIZE, LEVEL.TITLE_COLOR));       
 
-        auto description_text_entity = create_entity("description", Vector2(DESCRIPTION_PADDING_X, resolution.y - DESCRIPTION_PADDING_Y));
-        auto description_text = description_text_entity.add_component(new Text(Text.default_font, description, DESCRIPTION_FONT_SIZE, DESCRIPTION_COLOR));
+        auto description_text_entity = create_entity("description", Vector2(LEVEL.DESCRIPTION_PADDING_X, resolution.y - LEVEL.DESCRIPTION_PADDING_Y));
+        auto description_text = description_text_entity.add_component(new Text(Text.default_font, description, LEVEL.DESCRIPTION_FONT_SIZE, LEVEL.DESCRIPTION_COLOR));
+
+        auto board_entity = create_entity("board", Vector2(LEVEL.BOARD_X, LEVEL.BOARD_Y));
     }
 }

@@ -3,18 +3,18 @@ import std.stdio;
 import re;
 import re.math;
 import std.stdio;
+
 import play;
 
-class Game : Core {
-	private static const int WIDTH  = 640;
-	private static const int HEIGHT = 480;
+import constants;
 
+class Game : Core {
 	this() {
-		super(WIDTH, HEIGHT, "Order");
+		super(SCREEN.WIDTH, SCREEN.HEIGHT, "Order");
 	}
 
 	override void initialize() {
-		default_resolution = Vector2(WIDTH, HEIGHT);
+		default_resolution = Vector2(SCREEN.WIDTH, SCREEN.HEIGHT);
 		content.paths ~= "../content/";
 
 		load_scenes([new LevelScene("Level 1", "test", null, null)]);
