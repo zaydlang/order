@@ -1,0 +1,37 @@
+name "reng"
+description "RE_NGINE_FX game framework/engine"
+authors "xdrie"
+copyright "Copyright © 2020, xdrie"
+license "proprietary"
+dependency "datefmt" version="~>1.0.4"
+dependency "dray" version=">=3.0.0-patch4"
+dependency "jar" version="~>0.1.0"
+dependency "witchcraft" version="~>0.1.9"
+dependency "colorize" version="~>1.0.5"
+libs "raylib"
+
+# documentation
+x:ddoxFilterArgs "--min-protection=Protected"
+
+# standard build (includes: physics)
+configuration "lib-standard" {
+    targetType "library"
+    dependency "nudge-d" version=">=0.1.1"
+    versions "physics"
+}
+
+# minimal library, no extra libs
+configuration "lib-minimal" {
+    targetType "library"
+}
+
+configuration "unittest" {
+    # test runner
+    dependency "silly" version="~>1.0.2"
+
+    # - test additional features
+
+    # physics
+    versions "physics"
+    dependency "nudge-d" version=">=0.1.1"
+}

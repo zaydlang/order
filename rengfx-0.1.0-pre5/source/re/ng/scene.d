@@ -1,0 +1,279 @@
+module re.ng.scene;
+
+import re;
+import std.string;
+import re.ecs;
+import re.gfx;
+import re.math;
+import re.ng.manager;
+import std.typecons;
+import std.range;
+static import raylib;
+
+public {
+    import re.time;
+    import re.ng.scene2d;
+    import re.ng.scene3d;
+}
+
+/// represents a collection of entities that draw to a texture
+abstract class Scene {
+    /// the cleared background color
+    public raylib.Color clear_color = Colors.WHITE;
+    /// the entity manager
+    public EntityManager ecs;
+    /// the render target
+    public RenderTarget render_target;
+    private Vector2 _resolution;
+    /// the mode of compositing
+    public CompositeMode composite_mode;
+    /// postprocessors effects
+    public PostProcessor[] postprocessors;
+    /// updatable managers
+    public Manager[] managers;
+
+    /// the mode for compositing a scene onto the display buffer
+    public struct CompositeMode {
+        /// the texture render tint color
+        raylib.Color color = raylib.Colors.WHITE;
+    }
+
+    /// creates a new scene
+    this() {
+    }
+
+    /// gets the render resolution. initialized to Core.default_resolution
+    @property Vector2 resolution() {
+        return _resolution;
+    }
+
+    /// sets the render resolution and updates the render target
+    @property Vector2 resolution(Vector2 value) {
+        _resolution = value;
+        update_render_target();
+        return value;
+    }
+
+    /// sets the texture filtering mode for the scene render target
+    @property raylib.TextureFilterMode filter_mode(raylib.TextureFilterMode value) {
+        // texture scale filter
+        raylib.SetTextureFilter(render_target.texture, value);
+        return value;
+    }
+
+    /// called at the start of the scene
+    protected void on_start() {
+
+    }
+
+    /// called right before cleanup
+    protected void unload() {
+
+    }
+
+    /// called internally to update ecs
+    public void update() {
+        // update ecs
+        ecs.update();
+
+        // update components
+        foreach (component; ecs.storage.updatable_components) {
+            auto updatable = cast(Updatable) component;
+            updatable.update();
+        }
+    }
+
+    /// called internally to render ecs
+    public void render() {
+        raylib.BeginTextureMode(render_target);
+        raylib.ClearBackground(clear_color);
+
+        render_scene();
+
+        raylib.EndTextureMode();
+    }
+
+    /// run postprocessors
+    public void post_render() {
+        import std.algorithm : filter;
+        import std.array : array;
+
+        auto pipeline = postprocessors.filter!(x => x.enabled).array;
+        // skip if no postprocessors
+        if (pipeline.length == 0)
+            return;
+
+        pipeline[0].process(render_target);
+        auto last_buf = pipeline[0].buffer;
+        for (auto i = 1; i < pipeline.length; i++) {
+            auto postprocessor = pipeline[i];
+            postprocessor.process(last_buf);
+            last_buf = postprocessor.buffer;
+        }
+        // draw the last buf in the chain to the main texture
+        RenderExt.draw_render_target_from(last_buf, render_target);
+    }
+
+    protected abstract void render_scene();
+
+    private void update_render_target() {
+        if (Core.headless)
+            return;
+        // free any old render target
+        if (render_target == raylib.RenderTexture2D.init) {
+            raylib.UnloadRenderTexture(render_target);
+        }
+        // create render target
+        // TODO: use scene resolution instead of window resolution
+        render_target = raylib.LoadRenderTexture(cast(int) resolution.x, cast(int) resolution.y);
+    }
+
+    /// called internally on scene creation
+    public void begin() {
+        setup();
+
+        on_start();
+    }
+
+    /// setup that hapostprocessorsens after begin, but before the child scene starts
+    protected void setup() {
+        // set up ecs
+        ecs = new EntityManager;
+
+        resolution = Core.default_resolution;
+    }
+
+    /// called internally on scene destruction
+    public void end() {
+        unload();
+
+        ecs.destroy();
+        ecs = null;
+
+        foreach (postprocessor; postprocessors) {
+            postprocessor.destroy();
+        }
+        postprocessors = [];
+        
+        foreach (manager; managers) {
+            manager.destroy();
+        }
+
+        if (!Core.headless) {
+            // free render target
+            raylib.UnloadRenderTexture(render_target);
+        }
+    }
+
+    public Nullable!T get_manager(T)() {
+        import std.algorithm.searching : find;
+
+        // find a manager matching the type
+        auto matches = managers.find!(x => (cast(T) x) !is null);
+        if (matches.length > 0) {
+            return Nullable!T(cast(T) matches.front);
+        }
+        return Nullable!T.init;
+    }
+
+    // - ecs
+
+    /// create an entity given a name
+    public Entity create_entity(string name) {
+        auto nt = ecs.create_entity();
+        nt.name = name;
+        nt.scene = this;
+        return nt;
+    }
+
+    /// create an entity given a name and a 2d position
+    public Entity create_entity(string name, Vector2 pos = Vector2(0, 0)) {
+        auto nt = create_entity(name);
+        nt.position2 = pos;
+        return nt;
+    }
+
+    /// create an entity given a name and a 3d position
+    public Entity create_entity(string name, Vector3 pos = Vector3(0, 0, 0)) {
+        auto nt = create_entity(name);
+        nt.position = pos;
+        return nt;
+    }
+
+    public Entity get_entity(string name) {
+        return ecs.get_entity(name);
+    }
+}
+
+@("scene-lifecycle")
+unittest {
+    class TestScene : Scene2D {
+        override void on_start() {
+            auto apple = create_entity("apple");
+            assert(get_entity("apple") == apple, "could not get entity by name");
+        }
+    }
+
+    Core.headless = true;
+    auto scene = new TestScene();
+    scene.begin();
+    scene.update();
+    scene.end();
+}
+
+@("scene-load")
+unittest {
+    class TestScene : Scene2D {
+    }
+
+    Core.headless = true;
+
+    auto scene = new TestScene();
+    Core.load_scenes([scene]);
+    assert(Core.get_scene!TestScene == scene);
+}
+
+/// create a test game, with a test scene, and update it
+@("scene-full")
+unittest {
+    import re.util.test : TestGame;
+
+    static class TestScene : Scene2D {
+        class Plant : Component, Updatable {
+            public int height = 0;
+
+            void update() {
+                height++;
+            }
+        }
+
+        override void on_start() {
+            // create a basic entity
+            auto nt = create_entity("apple");
+            // add a basic component
+            nt.add_component(new Plant());
+        }
+    }
+
+    auto my_scene = new TestScene();
+
+    class Game : TestGame {
+        override void initialize() {
+            load_scenes([my_scene]);
+        }
+    }
+
+    auto game = new Game();
+    game.run();
+
+    // make sure scene is accessible
+    assert(game.primary_scene == my_scene, "primary scene does not match loaded scene");
+
+    // make sure components worked
+    assert(my_scene.get_entity("apple").get_component!(TestScene.Plant)().height > 0, "test Updatable was not updated");
+
+    game.destroy(); // clean up
+
+    // make sure scene is cleaned up
+    assert(my_scene.ecs is null, "scene was not cleaned up");
+}
