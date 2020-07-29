@@ -1,4 +1,4 @@
-module grid;
+module tile;
 
 import re;
 
@@ -24,12 +24,12 @@ class StraightTile : Tile {
 
 class LeftTile : Tile {
     override void act(Food food) {
-        food.rotateLeft();
+        food.rotate_left();
     }
 }
 
 class RightTile : Tile {
     override void act(Food food) {
-        food.rotateRight();
+        food.rotate_right();
     }
 }

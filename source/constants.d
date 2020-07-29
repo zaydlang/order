@@ -35,6 +35,10 @@ struct LEVEL {
     static const int     BOARD_HEIGHT          = (TILE_SIDE_LENGTH + GRID_PADDING) * GRID_NUM_ROWS + GRID_PADDING;
     static const float   BOARD_CENTER_X        = cast(float)(BOARD_WIDTH)  / 2 + BOARD_X;
     static const float   BOARD_CENTER_Y        = cast(float)(BOARD_HEIGHT) / 2 + BOARD_Y;
+
+    static const int     MOUSEOVER_HIGHLIGHT_R = 30;
+    static const int     MOUSEOVER_HIGHLIGHT_G = 30;
+    static const int     MOUSEOVER_HIGHLIGHT_B = 30;
 }
 
 struct DIRECTION {

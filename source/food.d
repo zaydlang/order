@@ -17,14 +17,14 @@ class Food : Component, Updatable {
         entity.position2 = entity.position2 + (direction * SPEED * Time.delta_time);
     }
 
-    void rotateLeft() {
+    void rotate_left() {
         Vector2 temp;
         temp.x =  direction.y;
         temp.y = -direction.x;
         direction = temp;
     }
 
-    void rotateRight() {
+    void rotate_right() {
         Vector2 temp;
         temp.x = -direction.y;
         temp.y =  direction.x;
