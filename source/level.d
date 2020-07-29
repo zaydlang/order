@@ -5,6 +5,9 @@ import re.gfx;
 import re.gfx.shapes.rect;
 import re.math;
 
+import std.conv;
+import std.stdio;
+
 import constants;
 import grid;
 
@@ -36,5 +39,23 @@ class LevelScene : Scene2D {
 
         auto board_entity = create_entity("board", Vector2(LEVEL.BOARD_CENTER_X, LEVEL.BOARD_CENTER_Y));
         board_entity.add_component(new ColorRect(Vector2(LEVEL.BOARD_WIDTH, LEVEL.BOARD_HEIGHT), LEVEL.GRID_COLOR));
+
+        Entity[LEVEL.GRID_NUM_ROWS][LEVEL.GRID_NUM_COLS] tiles;
+        // set up the tile positions, and draw them to screen
+        for (int x = 0; x < LEVEL.GRID_NUM_COLS; x++) {
+            // get position of center of tile
+            float tile_x = LEVEL.FIRST_TILE_OFFSET_X + (x * (LEVEL.TILE_SIDE_LENGTH + LEVEL.GRID_PADDING));
+            for (int y = 0; y < LEVEL.GRID_NUM_ROWS; y++) {
+                float tile_y = LEVEL.FIRST_TILE_OFFSET_Y + (y * (LEVEL.TILE_SIDE_LENGTH + LEVEL.GRID_PADDING));
+
+                auto tile_entity = create_entity("tile_" ~ to!string(x) ~ "_" ~ to!string(y), Vector2(tile_x, tile_y));
+                tile_entity.add_component(new ColorRect(Vector2(LEVEL.TILE_SIDE_LENGTH, LEVEL.TILE_SIDE_LENGTH), LEVEL.TILE_COLOR));
+                
+                // add tile to tiles list
+                tiles[x][y] = tile_entity;
+            }
+        }
+
+        // add tiles to the board
     }
 }
