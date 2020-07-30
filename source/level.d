@@ -55,5 +55,18 @@ class LevelScene : Scene2D {
 
         // add board manager
         board_entity.add_component(new BoardManager());
+
+        auto sidebar_entity = create_entity("board", Vector2(LEVEL.SIDEBAR_CENTER_X, LEVEL.SIDEBAR_CENTER_Y));
+        sidebar_entity.add_component(new ColorRect(Vector2(LEVEL.SIDEBAR_WIDTH, LEVEL.SIDEBAR_HEIGHT), LEVEL.GRID_COLOR));
+        // set up the sidebar
+        for (int x = 0; x < LEVEL.SIDEBAR_NUM_COLS; x++) {
+            float tile_x = LEVEL.SIDEBAR_FIRST_TILE_OFFSET_X + (x * (LEVEL.SIDEBAR_TILE_SIDE_LENGTH  + LEVEL.GRID_PADDING));
+            for (int y = 0; y < LEVEL.SIDEBAR_NUM_ROWS; y++) {
+                float tile_y = LEVEL.SIDEBAR_FIRST_TILE_OFFSET_Y + (y * (LEVEL.SIDEBAR_TILE_SIDE_LENGTH  + LEVEL.GRID_PADDING));
+
+                auto tile_entity = create_entity("sidebar_" ~ to!string(x) ~ "_" ~ to!string(y), Vector2(tile_x, tile_y));
+                tile_entity.add_component(new ColorRect(Vector2(LEVEL.SIDEBAR_TILE_SIDE_LENGTH , LEVEL.SIDEBAR_TILE_SIDE_LENGTH ), LEVEL.TILE_COLOR));
+            }
+        }
     }
 }
