@@ -33,16 +33,30 @@ class BoardManager : Component, Updatable {
             if (color_rect != next_color_rect) {
                 // lighten the old tile
                 if (color_rect !is null) {
-                    color_rect.color.r += LEVEL.MOUSEOVER_HIGHLIGHT_R;
-                    color_rect.color.g += LEVEL.MOUSEOVER_HIGHLIGHT_G;
-                    color_rect.color.b += LEVEL.MOUSEOVER_HIGHLIGHT_B;
+                    lighten(color_rect);
                 }
 
-                next_color_rect.color.r -= LEVEL.MOUSEOVER_HIGHLIGHT_R;
-                next_color_rect.color.g -= LEVEL.MOUSEOVER_HIGHLIGHT_G;
-                next_color_rect.color.b -= LEVEL.MOUSEOVER_HIGHLIGHT_B;
+                darken(next_color_rect);
                 color_rect = next_color_rect;
             }
+        } else {
+            if (color_rect !is null) {
+                // lighten the old tile anyway. the mouse left the tile.
+                lighten(color_rect);
+                color_rect = null;
+            }
         }
+    }
+
+    void lighten(ColorRect cr) {
+        cr.color.r += LEVEL.MOUSEOVER_HIGHLIGHT_R;
+        cr.color.g += LEVEL.MOUSEOVER_HIGHLIGHT_G;
+        cr.color.b += LEVEL.MOUSEOVER_HIGHLIGHT_B;
+    }
+
+    void darken(ColorRect cr) {
+        cr.color.r -= LEVEL.MOUSEOVER_HIGHLIGHT_R;
+        cr.color.g -= LEVEL.MOUSEOVER_HIGHLIGHT_G;
+        cr.color.b -= LEVEL.MOUSEOVER_HIGHLIGHT_B;
     }
 }
