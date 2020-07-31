@@ -39,24 +39,41 @@ struct LEVEL {
 
     static const int     SIDEBAR_X                   = SCREEN.WIDTH - SIDEBAR_WIDTH - TITLE_PADDING_X;
     static const int     SIDEBAR_Y                   = BOARD_Y;
-    static const int     SIDEBAR_NUM_ROWS            = 5;
-    static const int     SIDEBAR_NUM_COLS            = 2;
-    static const int     SIDEBAR_TILE_SIDE_LENGTH    = TILE_SIDE_LENGTH * 2;
-    static const int     SIDEBAR_WIDTH               = SIDEBAR_NUM_COLS * (SIDEBAR_TILE_SIDE_LENGTH  + GRID_PADDING) + GRID_PADDING;
-    static const int     SIDEBAR_HEIGHT              = SIDEBAR_NUM_ROWS * (SIDEBAR_TILE_SIDE_LENGTH  + GRID_PADDING) + GRID_PADDING;
-    static const float   SIDEBAR_FIRST_TILE_OFFSET_X = LEVEL.SIDEBAR_X + LEVEL.GRID_PADDING + cast(float)(LEVEL.SIDEBAR_TILE_SIDE_LENGTH ) / 2;
-    static const float   SIDEBAR_FIRST_TILE_OFFSET_Y = LEVEL.SIDEBAR_Y + LEVEL.GRID_PADDING + cast(float)(LEVEL.SIDEBAR_TILE_SIDE_LENGTH ) / 2;
+    static const int     SIDEBAR_NUM_ROWS            = 4;
+    static const int     SIDEBAR_WIDTH               = 100;
+    static const int     SIDEBAR_HEIGHT              = SIDEBAR_BUTTON_HEIGHT * SIDEBAR_NUM_ROWS;
+    static const int     SIDEBAR_BUTTON_WIDTH        = SIDEBAR_WIDTH;
+    static const int     SIDEBAR_BUTTON_HEIGHT       = 40;
+    static const float   SIDEBAR_FIRST_TILE_OFFSET_X = LEVEL.SIDEBAR_X + cast(float)(LEVEL.SIDEBAR_BUTTON_WIDTH)  / 2;
+    static const float   SIDEBAR_FIRST_TILE_OFFSET_Y = LEVEL.SIDEBAR_Y + cast(float)(LEVEL.SIDEBAR_BUTTON_HEIGHT) / 2;
     static const float   SIDEBAR_CENTER_X            = cast(float)(SIDEBAR_WIDTH)  / 2 + SIDEBAR_X;
     static const float   SIDEBAR_CENTER_Y            = cast(float)(SIDEBAR_HEIGHT) / 2 + SIDEBAR_Y;
 
-    static const int     MOUSEOVER_HIGHLIGHT_R       = 30;
-    static const int     MOUSEOVER_HIGHLIGHT_G       = 30;
-    static const int     MOUSEOVER_HIGHLIGHT_B       = 30;
+    static const float   MOUSEOVER_HIGHLIGHT_R       = 0.8;
+    static const float   MOUSEOVER_HIGHLIGHT_G       = 0.8;
+    static const float   MOUSEOVER_HIGHLIGHT_B       = 0.8;
 }
 
+struct TILE {
+    enum TYPE {
+        ENTRANCE = 0,
+        EXIT     = 1,
+        EMPTY    = 2,
+        STRAIGHT = 3,
+        LEFT     = 4,
+        RIGHT    = 5
+    }
+
+    static const int     NUM_TILES                   = 6;
+}
+/*
+struct TILE_COLOR {
+    static const Color  EMPTY_COLOR
+}*/
+/*
 struct DIRECTION {
     static const Vector2 RIGHT                       = Vector2( 1,  0);
     static const Vector2 UP                          = Vector2( 0, -1);
     static const Vector2 LEFT                        = Vector2(-1,  0);
     static const Vector2 DOWN                        = Vector2( 0,  1);
-}
+}*/

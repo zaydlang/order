@@ -11,6 +11,8 @@ import std.stdio;
 import constants;
 import tile;
 import board;
+import sidebar;
+import button;
 
 static import raylib;
 
@@ -50,22 +52,31 @@ class LevelScene : Scene2D {
 
                 auto tile_entity = create_entity("tile_" ~ to!string(x) ~ "_" ~ to!string(y), Vector2(tile_x, tile_y));
                 tile_entity.add_component(new ColorRect(Vector2(LEVEL.TILE_SIDE_LENGTH, LEVEL.TILE_SIDE_LENGTH), LEVEL.TILE_COLOR));
+                tile_entity.add_component(new Tile(x, y, TILE.TYPE.EMPTY));
             }
         }
 
         // add board manager
         board_entity.add_component(new BoardManager());
 
-        auto sidebar_entity = create_entity("board", Vector2(LEVEL.SIDEBAR_CENTER_X, LEVEL.SIDEBAR_CENTER_Y));
-        sidebar_entity.add_component(new ColorRect(Vector2(LEVEL.SIDEBAR_WIDTH, LEVEL.SIDEBAR_HEIGHT), LEVEL.GRID_COLOR));
         // set up the sidebar
-        for (int x = 0; x < LEVEL.SIDEBAR_NUM_COLS; x++) {
-            float tile_x = LEVEL.SIDEBAR_FIRST_TILE_OFFSET_X + (x * (LEVEL.SIDEBAR_TILE_SIDE_LENGTH  + LEVEL.GRID_PADDING));
-            for (int y = 0; y < LEVEL.SIDEBAR_NUM_ROWS; y++) {
-                float tile_y = LEVEL.SIDEBAR_FIRST_TILE_OFFSET_Y + (y * (LEVEL.SIDEBAR_TILE_SIDE_LENGTH  + LEVEL.GRID_PADDING));
+        auto sidebar_entity = create_entity("sidebar", Vector2(LEVEL.SIDEBAR_CENTER_X, LEVEL.SIDEBAR_CENTER_Y));
+        sidebar_entity.add_component(new SidebarManager());
+        
+        float tile_x = LEVEL.SIDEBAR_FIRST_TILE_OFFSET_X;
+        int y = 0;
+        for (int current_tile = 0; current_tile < TILE.NUM_TILES; current_tile++) {
+            auto tile_data = TileData.get_tile_data(current_tile);
 
-                auto tile_entity = create_entity("sidebar_" ~ to!string(x) ~ "_" ~ to!string(y), Vector2(tile_x, tile_y));
-                tile_entity.add_component(new ColorRect(Vector2(LEVEL.SIDEBAR_TILE_SIDE_LENGTH , LEVEL.SIDEBAR_TILE_SIDE_LENGTH ), LEVEL.TILE_COLOR));
+            // can we edit this tile in the sidebar? if so, let's put it in the sidebar.
+            if (tile_data.is_editable()) {
+                auto color = tile_data.get_color();
+                float tile_y = LEVEL.SIDEBAR_FIRST_TILE_OFFSET_Y + y * (LEVEL.SIDEBAR_BUTTON_HEIGHT);
+
+                auto button_entity = create_entity("tile_button_" ~ to!string(current_tile), Vector2(tile_x, tile_y));
+                button_entity.add_component(new ColorRect(Vector2(LEVEL.SIDEBAR_BUTTON_WIDTH, LEVEL.SIDEBAR_BUTTON_HEIGHT), color));
+                button_entity.add_component(new TileButton(cast(int)(tile_x), cast(int)(tile_y), current_tile));
+                y++;
             }
         }
     }

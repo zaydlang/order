@@ -7,6 +7,7 @@ import re.gfx.shapes.rect;
 
 import constants;
 import tile;
+import sidebar;
 
 import std.stdio;
 import std.conv;
@@ -29,7 +30,8 @@ class BoardManager : Component, Updatable {
 
         if (x >= 0 && x < LEVEL.GRID_NUM_COLS && y >= 0 && y < LEVEL.GRID_NUM_ROWS) {
             // darken the tile
-            ColorRect next_color_rect = Core.primary_scene.get_entity("tile_" ~ to!string(x) ~ "_" ~ to!string(y)).get_component!ColorRect;
+            auto tile_entity = Core.primary_scene.get_entity("tile_" ~ to!string(x) ~ "_" ~ to!string(y));
+            ColorRect next_color_rect = tile_entity.get_component!ColorRect;
             if (color_rect != next_color_rect) {
                 // lighten the old tile
                 if (color_rect !is null) {
@@ -38,6 +40,13 @@ class BoardManager : Component, Updatable {
 
                 darken(next_color_rect);
                 color_rect = next_color_rect;
+            }
+
+            // if the button is down, set the tile to the selected value.
+            if (Input.is_mouse_down(MouseButton.MOUSE_LEFT_BUTTON)) {
+                auto selected_value = Core.primary_scene.get_entity("sidebar").get_component!SidebarManager.get_selected_value();
+                tile_entity.get_component!Tile.set_type(selected_value);
+                darken(color_rect);
             }
         } else {
             if (color_rect !is null) {
@@ -49,14 +58,14 @@ class BoardManager : Component, Updatable {
     }
 
     void lighten(ColorRect cr) {
-        cr.color.r += LEVEL.MOUSEOVER_HIGHLIGHT_R;
-        cr.color.g += LEVEL.MOUSEOVER_HIGHLIGHT_G;
-        cr.color.b += LEVEL.MOUSEOVER_HIGHLIGHT_B;
+        cr.color.r = cast(ubyte)(cr.color.r / LEVEL.MOUSEOVER_HIGHLIGHT_R);
+        cr.color.g = cast(ubyte)(cr.color.g / LEVEL.MOUSEOVER_HIGHLIGHT_G);
+        cr.color.b = cast(ubyte)(cr.color.b / LEVEL.MOUSEOVER_HIGHLIGHT_B);
     }
 
     void darken(ColorRect cr) {
-        cr.color.r -= LEVEL.MOUSEOVER_HIGHLIGHT_R;
-        cr.color.g -= LEVEL.MOUSEOVER_HIGHLIGHT_G;
-        cr.color.b -= LEVEL.MOUSEOVER_HIGHLIGHT_B;
+        cr.color.r = cast(ubyte)(cr.color.r * LEVEL.MOUSEOVER_HIGHLIGHT_R);
+        cr.color.g = cast(ubyte)(cr.color.g * LEVEL.MOUSEOVER_HIGHLIGHT_G);
+        cr.color.b = cast(ubyte)(cr.color.b * LEVEL.MOUSEOVER_HIGHLIGHT_B);
     }
 }
