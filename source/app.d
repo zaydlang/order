@@ -7,6 +7,7 @@ import std.stdio;
 import level;
 
 import constants;
+import foodmanager;
 
 class Game : Core {
 	this() {
@@ -17,7 +18,7 @@ class Game : Core {
 		default_resolution = Vector2(SCREEN.WIDTH, SCREEN.HEIGHT);
 		content.paths ~= "../content/";
 
-		load_scenes([new LevelScene("Level 1", "test", null, null)]);
+		load_scenes([new LevelScene("Level 1", "test", new FoodManager_1())]);
 	}
 }
 

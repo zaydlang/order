@@ -11,21 +11,22 @@ import raylib;
 import constants;
 import food;
 import sidebar;
+import foodmanager;
 
 abstract class Button : Component, Updatable {
-    private int x;
-    private int y;
-    private int width;
-    private int height;
+    private float x;
+    private float y;
+    private float width;
+    private float height;
     public bool pressed;
     public bool darkened;
 
     private ColorRect color_rect;
 
     // i require the centers to be passed in because ColorRect draws with respect to the center.
-    this(int center_x, int center_y, int width, int height) {
-        this.x          = center_x - cast(int)(width  / 2);
-        this.y          = center_y - cast(int)(height / 2);
+    this(float center_x, float center_y, float width, float height) {
+        this.x          = center_x - (width  / 2);
+        this.y          = center_y - (height / 2);
         this.width      = width;
         this.height     = height;
         this.pressed    = false;
@@ -49,8 +50,8 @@ abstract class Button : Component, Updatable {
         if (is_mouse_hovering) {
             if (Input.is_mouse_down(MouseButton.MOUSE_LEFT_BUTTON)) {
                 on_press();
-            } else {
-                on_release();
+            } else if (pressed) {
+                 on_release();
             }
         }
     }
@@ -80,7 +81,7 @@ abstract class Button : Component, Updatable {
 class TileButton : Button {
     private int type;
 
-    this(int x, int y, int type) {
+    this(float x, float y, int type) {
         super(x, y, LEVEL.SIDEBAR_BUTTON_WIDTH, LEVEL.SIDEBAR_BUTTON_HEIGHT);
         this.type = type;
     }
@@ -99,5 +100,47 @@ class TileButton : Button {
         writeln(type);
         stdout.flush();
         pressed = false;
+    }
+}
+
+// start and stop button are the same. the stop button changes floato 
+// the start button and vice versa when pressed.
+class StartButton : Button {
+    private bool is_start; // are we currently a "start button"?
+
+    this() {
+        super(LEVEL.START_BUTTON_CENTER_X, LEVEL.START_BUTTON_CENTER_Y, LEVEL.START_BUTTON_WIDTH, LEVEL.START_BUTTON_HEIGHT);
+        this.is_start = true;
+    }
+
+    override void on_press() {
+        pressed = true;
+    }
+
+    override void on_release() {
+        pressed = false;
+        is_start = !is_start;
+
+        updateColor();
+        doAction();
+    }
+
+    void updateColor() {
+        if (is_start) {
+            color_rect.color = LEVEL.START_BUTTON_COLOR;
+        } else {
+            color_rect.color = LEVEL.STOP_BUTTON_COLOR;
+        }
+
+        darkened = false;
+        darken();
+    }
+
+    void doAction() {
+        if (!is_start) {
+            Core.primary_scene.get_entity("food_manager").get_component!FoodManager().start();
+        } else {
+            Core.primary_scene.get_entity("food_manager").get_component!FoodManager().stop();
+        }
     }
 }

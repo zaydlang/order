@@ -13,24 +13,19 @@ import tile;
 import board;
 import sidebar;
 import button;
+import foodmanager;
 
 static import raylib;
 
 class LevelScene : Scene2D {
+    private static string      title;
+    private static string      description;
+    private static FoodManager food_manager;
 
-    private static string title;
-    private static string description;
-    
-    // called when food comes in through an entrance or an exit to decide which food should come out
-    // and whether or not the food went to the right exit, respectively.
-    private void delegate() onEntry;
-    private bool delegate() onExit;
-
-    this(string title, string description, void delegate() onEntry, bool delegate() onExit) {
-        this.title       = title;
-        this.description = description;
-        this.onEntry     = onEntry;
-        this.onExit      = onExit;
+    this(string title, string description, FoodManager food_manager) {
+        this.title        = title;
+        this.description  = description;
+        this.food_manager = food_manager;
     }
     
     override void on_start() {
@@ -66,7 +61,7 @@ class LevelScene : Scene2D {
         float tile_x = LEVEL.SIDEBAR_FIRST_TILE_OFFSET_X;
         int y = 0;
         for (int current_tile = 0; current_tile < TILE.NUM_TILES; current_tile++) {
-            auto tile_data = TileData.get_tile_data(current_tile);
+            auto tile_data = TileData.get_tile_data(null, current_tile);
 
             // can we edit this tile in the sidebar? if so, let's put it in the sidebar.
             if (tile_data.is_editable()) {
@@ -79,5 +74,14 @@ class LevelScene : Scene2D {
                 y++;
             }
         }
+
+        // add a food manager to deal with the logic of sending out and receiving food
+        auto food_manager_entity = create_entity("food_manager", Vector2(0, 0));
+        food_manager_entity.add_component(new FoodManager_1());
+        
+        // add start adn stop button
+        auto start_button_entity = create_entity("start_button", Vector2(LEVEL.START_BUTTON_CENTER_X, LEVEL.START_BUTTON_CENTER_Y));
+        start_button_entity.add_component(new ColorRect(Vector2(LEVEL.START_BUTTON_WIDTH, LEVEL.START_BUTTON_HEIGHT), LEVEL.START_BUTTON_COLOR));
+        start_button_entity.add_component(new StartButton());
     }
 }

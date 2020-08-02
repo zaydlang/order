@@ -52,9 +52,21 @@ struct LEVEL {
     static const float   MOUSEOVER_HIGHLIGHT_R       = 0.8;
     static const float   MOUSEOVER_HIGHLIGHT_G       = 0.8;
     static const float   MOUSEOVER_HIGHLIGHT_B       = 0.8;
+
+    static const float   FOOD_SIDE_LENGTH            = 25;
+    static const Color   FOOD_COLOR                  = Colors.YELLOW;
+
+    static const float   START_BUTTON_CENTER_X       = SIDEBAR_CENTER_X;
+    static const float   START_BUTTON_CENTER_Y       = BOARD_Y + BOARD_HEIGHT - (START_BUTTON_HEIGHT / 2);
+    static const float   START_BUTTON_WIDTH          = SIDEBAR_BUTTON_WIDTH;
+    static const float   START_BUTTON_HEIGHT         = SIDEBAR_BUTTON_HEIGHT;
+    static const Color   START_BUTTON_COLOR          = Colors.GREEN;
+    static const Color   STOP_BUTTON_COLOR           = Colors.RED;
 }
 
 struct TILE {
+    static const int     NUM_TILES                   = 6;
+    
     enum TYPE {
         ENTRANCE = 0,
         EXIT     = 1,
@@ -63,8 +75,14 @@ struct TILE {
         LEFT     = 4,
         RIGHT    = 5
     }
+}
 
-    static const int     NUM_TILES                   = 6;
+struct FOOD {
+    enum STATE {
+        MOVING  = 0,
+        STOPPED = 1,
+        EXITTED = 2
+    }
 }
 /*
 struct TILE_COLOR {
